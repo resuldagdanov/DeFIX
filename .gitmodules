@@ -1,11 +1,11 @@
 [submodule "reinforcement-learning"]
 	path = reinforcement-learning
 	url = https://github.com/feyza-droid/rllib-integration
-
+	branch = main
 [submodule "carla"]
 	path = carla
 	url = https://github.com/carla-simulator/carla
-
+	branch = master
 [submodule "imitation-learning"]
 	path = imitation-learning
 	url = https://github.com/resuldagdanov/scenario-based-rl
