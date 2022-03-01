@@ -1,3 +1,6 @@
 [submodule "reinforcement-learning"]
 	path = reinforcement-learning
 	url = https://github.com/feyza-droid/rllib-integration
+[submodule "carla"]
+	path = carla
+	url = https://github.com/carla-simulator/carla
