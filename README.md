@@ -8,3 +8,17 @@ Safely navigating through an urban environment without violating any traffic rul
 <p align="center">
     <img src="images/method_overview.png" width="600px"/>
 </p>
+
+## List of CARLA Scenarios
+<div align="center">
+
+| Scenario ID | Scenario Name |
+| :-: | :-: |
+| 0 | Dynamic Vehicle Collision |
+| 1 | Emerging Pedestrian Collision |
+| 2 | Stuck Vehicle & Static Objects |
+| 3 | Vehicle Running Red Light |
+| 4 | Crossing Signalized Traffic Intersections |
+| 5 | Crossing Un-signalized Intersections |
+
+</div>
