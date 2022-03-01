@@ -6,7 +6,7 @@ Safely navigating through an urban environment without violating any traffic rul
 
 ## Method Overview
 <p align="center">
-    <img src="images/method_overview.png" width="600px"/>
+    <img src="images/method_overview.png" width="1000px"/>
 </p>
 
 ## List of CARLA Scenarios
@@ -25,5 +25,5 @@ Safely navigating through an urban environment without violating any traffic rul
 
 ## Adversarial Urban Scenarios
 <p align="center">
-    <img src="images/adversarial_scenarios.png" width="600px"/>
+    <img src="images/adversarial_scenarios.png" width="1000px"/>
 </p>
