@@ -10,6 +10,7 @@ CARLA Challenge Evaluator Routes
 
 Provisional code to evaluate Autonomous Agents for the CARLA Autonomous Driving challenge
 """
+
 from __future__ import print_function
 
 import traceback
@@ -35,20 +36,6 @@ from leaderboard.autoagents.agent_wrapper import  AgentWrapper, AgentError
 from leaderboard.utils.statistics_manager import StatisticsManager
 from leaderboard.utils.route_indexer import RouteIndexer
 
-import torch
-import numpy as np
-import random
-
-"""
-seed = 0
-torch.manual_seed(seed)
-np.random.seed(seed)
-random.seed(seed)
-
-torch.cuda.manual_seed_all(seed)
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
-"""
 
 sensors_to_icons = {
     'sensor.camera.rgb':                            'carla_camera',
@@ -65,10 +52,6 @@ sensors_to_icons = {
 
 
 class LeaderboardEvaluator(object):
-
-    """
-    TODO: document me!
-    """
 
     ego_vehicles = []
 
@@ -131,8 +114,8 @@ class LeaderboardEvaluator(object):
         """
         Cleanup and delete actors, ScenarioManager and CARLA world
         """
-
         self._cleanup()
+
         if hasattr(self, 'manager') and self.manager:
             del self.manager
         if hasattr(self, 'world') and self.world:
@@ -142,10 +125,9 @@ class LeaderboardEvaluator(object):
         """
         Remove and destroy all actors
         """
-
         # Simulation still running and in synchronous mode?
-        if self.manager and self.manager.get_running_status() \
-                and hasattr(self, 'world') and self.world:
+        if self.manager and self.manager.get_running_status() and hasattr(self, 'world') and self.world:
+            
             # Reset to asynchronous mode
             settings = self.world.get_settings()
             settings.synchronous_mode = False
@@ -256,7 +238,7 @@ class LeaderboardEvaluator(object):
         self.statistics_manager.save_record(current_stats_record, config.index, checkpoint)
         self.statistics_manager.save_entry_status(entry_status, False, checkpoint)
 
-    def _load_and_run_scenario(self, args, config, rl_model=None):
+    def _load_and_run_scenario(self, args, config):
         """
         Load and run the scenario given by config.
 
@@ -276,7 +258,7 @@ class LeaderboardEvaluator(object):
         try:
             self._agent_watchdog.start()
             agent_class_name = getattr(self.module_agent, 'get_entry_point')()
-            self.agent_instance = getattr(self.module_agent, agent_class_name)(args.agent_config, config.name, rl_model)
+            self.agent_instance = getattr(self.module_agent, agent_class_name)(args.agent_config, config.name)
             config.agent = self.agent_instance
 
             # Check and store the sensors
@@ -411,50 +393,17 @@ class LeaderboardEvaluator(object):
             self.statistics_manager.clear_record(args.checkpoint)
             route_indexer.save_state(args.checkpoint)
 
-        if args.imitation_learning:
-            model = None
-        else:
-            from agent_utils.db import DB
-            db = DB()
-
-            from rl_training.dqn import DQNModel
-            model = DQNModel(db, args.evaluate)
+        model = None
 
         while route_indexer.peek():
             # setup
             config = route_indexer.next()
 
-            # run database structure only when rl model is defined, not during imitation learning model evaluation
-            if not args.imitation_learning:
-                # evaluation
-                if args.evaluate:
-                    print("\n--- next episode ---  #:", db.get_evaluation_global_episode_number(model.evaluation_id))
-                # training
-                else:
-                    print("\n--- next episode ---  #:", db.get_global_episode_number(model.training_id))
-
             # run
             self._load_and_run_scenario(args, config, model)
             self._cleanup()
 
-            if not args.imitation_learning:
-                # evaluation
-                if args.evaluate:
-                    db.increment_and_update_evaluation_global_episode_number(model.evaluation_id)
-                # training
-                else:
-                    db.increment_and_update_global_episode_number(model.training_id)
-
             route_indexer.save_state(args.checkpoint)
-
-        if not args.imitation_learning:
-            # training
-            if not args.evaluate:
-                # save after training is completed for batch of episodes
-                model.save_models(db.get_global_episode_number(model.training_id))
-        
-            # close DB connection after training is over
-            db.close()
 
         # save global statistics
         print("\033[1m> Registering the global statistics\033[0m")
@@ -487,8 +436,6 @@ def main():
     parser.add_argument("--track", type=str, default='SENSORS', help="Participation track: SENSORS, MAP")
     parser.add_argument('--resume', type=bool, default=False, help='Resume execution from last checkpoint?')
     parser.add_argument("--checkpoint", type=str, default='./simulation_results.json', help="Path to checkpoint used for saving statistics and resuming")
-    parser.add_argument('--evaluate', action="store_true", help='RL Model Evaluate(True) Train(False)')
-    parser.add_argument('--imitation_learning', action="store_true", help='Imitation Learning Model (True), RL Model (False)')
 
     arguments = parser.parse_args()
 
