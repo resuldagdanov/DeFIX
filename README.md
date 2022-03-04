@@ -6,7 +6,7 @@ Safely navigating through an urban environment without violating any traffic rul
 
 ## Method Overview
 <p align="center">
-    <img src="images/method_overview.png" width="1000px"/>
+    <img src="figures/method_overview.png" width="1000px"/>
 </p>
 
 ## List of CARLA Scenarios
@@ -25,12 +25,12 @@ Safely navigating through an urban environment without violating any traffic rul
 
 ## Adversarial Urban Scenarios
 <p align="center">
-    <img src="images/adversarial_scenarios.png" width="1000px"/>
+    <img src="figures/adversarial_scenarios.png" width="1000px"/>
 </p>
 
 ## Network Architectures
 Pre-trained ResNet-50 model is used as a backbone to all proposed networks. The last layer of a ResNet-50 is unfrozen and fine-tuned during the training of brake and policy classifiers. Speed, orientation, location, and front camera data are obtained from sensors while sequential target locations are given priorly. Target locations are converted to the relative local coordinate frame by using vehicle position and orientation obtained from IMU and GPS sensors, respectively. In the supervised learning network, a 704-dimensional feature vector represents the fused information of sensor inputs, from there it is processed through fully connected layers. IL agent only decides when to apply a brake action while policy classifier decides which trained agent to activate during evaluation. ResNet-50 model is completely frozen during DQN trainings. The state-space for the DQN agent is a 1000-dimensional vector of ResNet backbone output. DQN agents output high-level action commands (lane keeping, right and left lane changing, stopping). Low-level steering and throttle actions are determined with lateral and longitudinal PID controllers, respectively.
 
 <p align="center">
-    <img src="images/network_architectures.png" width="1000px"/>
+    <img src="figures/network_architectures.png" width="1500px"/>
 </p>
