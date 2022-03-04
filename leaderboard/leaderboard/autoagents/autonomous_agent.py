@@ -32,9 +32,9 @@ class AutonomousAgent(object):
     Autonomous agent base class. All user agents have to be derived from this class
     """
 
-    def __init__(self, path_to_conf_file, route_id, model):
-        self.model = model
+    def __init__(self, path_to_conf_file, route_id):
         self.track = Track.SENSORS
+        
         #  current global plans to reach a destination
         self._global_plan = None
         self._global_plan_world_coord = None
@@ -43,11 +43,11 @@ class AutonomousAgent(object):
         self.sensor_interface = SensorInterface()
 
         # agent's initialization
-        self.setup(path_to_conf_file, route_id, model)
+        self.setup(path_to_conf_file, route_id)
 
         self.wallclock_t0 = None
 
-    def setup(self, path_to_conf_file, route_id, model):
+    def setup(self, path_to_conf_file, route_id):
         """
         Initialize everything needed by your agent and set the track attribute to the right type:
             Track.SENSORS : CAMERAS, LIDAR, RADAR, GPS and IMU sensors are allowed
