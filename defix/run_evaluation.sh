@@ -36,7 +36,7 @@ export CHALLENGE_TRACK_CODENAME=SENSORS
 export DEBUG_CHALLENGE=0
 export RESUME=False
 
-export TEAM_AGENT=${DeFIX_PATH}/defix/evaluate.py
+export TEAM_AGENT=${DeFIX_PATH}/defix/evaluate_defix.py
 
 [ -d ${DeFIX_PATH}/results ] || mkdir ${DeFIX_PATH}/results
 
