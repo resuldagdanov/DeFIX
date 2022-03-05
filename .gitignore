@@ -131,5 +131,6 @@ dmypy.json
 images/*
 figures/*
 checkpoint/*
+results/*
 
 *.zip
