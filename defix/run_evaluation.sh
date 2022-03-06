@@ -22,6 +22,7 @@ export PYTHONPATH=$PYTHONPATH:${DeFIX_PATH}
 export PYTHONPATH=$PYTHONPATH:${DeFIX_PATH}/leaderboard:leaderboard
 export PYTHONPATH=$PYTHONPATH:${DeFIX_PATH}/scenario_runner:scenario_runner
 export PYTHONPATH=$PYTHONPATH:${DeFIX_PATH}/imitation-learning:imitation-learning
+export PYTHONPATH=$PYTHONPATH:${DeFIX_PATH}/reinforcement-learning:reinforcement-learning
 
 export TEAM_CONFIG=${DeFIX_PATH}
 export LEADERBOARD_ROOT=${DeFIX_PATH}/leaderboard
