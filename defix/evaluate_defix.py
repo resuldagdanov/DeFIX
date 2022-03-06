@@ -1,5 +1,4 @@
 import os
-import sys
 import weakref
 import numpy as np
 import random
@@ -9,29 +8,20 @@ import carla
 import torch
 
 from torchvision import models
-
+from collections import deque
 from datetime import datetime
 from srunner.scenariomanager.carla_data_provider import CarlaDataProvider
 from leaderboard.autoagents import autonomous_agent 
 
-# to add the parent "agents" folder to sys path and import models
-current = os.path.dirname(os.path.realpath(__file__))
-parent = os.path.dirname(current)
-sys.path.append(parent)
-
-from collections import deque
 from agent_utils import base_utils
 from agent_utils.pid_controller import PIDController
 from agent_utils.planner import RoutePlanner
 
 from networks.imitation_network import ImitationNetwork
-from networks.dqn_network import DQNNetwork
 from networks.policy_classifier_network import PolicyClassifierNetwork
+from custom_networks.dqn_network import DQNNetwork
 
-
-# if True: IL vs Autopilot will be checked and Autopilot data is applied when brake commands are not the same
-# if False: IL agent will always be applied without saving data
-DAGGER = False
+from gym.spaces import Box, Discrete
 
 # if True: front camera will be displayed
 DEBUG = False
@@ -42,18 +32,23 @@ ACTIVATE_SWITCH = True
 # if False: only clear weather will be active
 IS_WEATHER_CHANGE = True
 
-# trained IL model path (should be inside "checkpoint/models/" folder)
-model_folder = "Feb_05_2022-15_18_48_dagger_2_big" #"Feb_04_2022-19_14_19_imitation_0"
-model_name = "epoch_15.pth"
+# trained IL model path (should be inside "checkpoint/models/imitation/" folder)
+model_folder = "Feb_04_2022-19_14_19"
+model_name = "epoch_30.pth"
 
-# stuck vehicle RL model
-rl_model_folder = "Feb_07_2022-14_26_30"
-rl_model_eps_num = 300
-
-# policy switch classifier model
-policy_model_folder = "Feb_05_2022-21_29_35_policy_classifier"
+# policy switch classifier model (should be inside "checkpoint/models/policy_classifier/" folder)
+policy_model_folder = "Feb_05_2022-21_29_35"
 switch_model_name = "epoch_30.pth"
 
+# stuck vehicle RL model (should be inside "checkpoint/models/reinforcement/" folder)
+rl_model_folder = "Mar_06_2022-22_13_48"
+rl_model_eps_num = "checkpoint_iter_5.pth"
+
+# directories where model checkpoints are saved
+base_code_path = os.environ.get('DeFIX_PATH')
+CLASSIFIER_CHECKPOINTS_DIR = os.path.join(base_code_path, "checkpoint/models/policy_classifier/")
+IMITATION_CHECKPOINTS_DIR = os.path.join(base_code_path, "checkpoint/models/imitation/")
+RL_CHECKPOINTS_DIR = os.path.join(base_code_path, "checkpoint/models/reinforcement/")
 
 SENSOR_CONFIG = {
     'width': 400,
@@ -88,11 +83,11 @@ WEATHERS_IDS = list(WEATHERS)
 
 
 def get_entry_point():
-    return 'ImitationAgent'
+    return 'EvaluateDefix'
 
 
-class ImitationAgent(autonomous_agent.AutonomousAgent):
-    def setup(self, path_to_conf_file, route_id, rl_model=None):
+class EvaluateDefix(autonomous_agent.AutonomousAgent):
+    def setup(self, path_to_conf_file, route_id):
         self.track = autonomous_agent.Track.SENSORS
         self._sensor_data = SENSOR_CONFIG
         self.config_path = path_to_conf_file
@@ -114,42 +109,61 @@ class ImitationAgent(autonomous_agent.AutonomousAgent):
         # month_date_year-hour_minute_second
         time_info = "/" + current_date + "-" + current_time + "/"
 
-        self.dataset_save_path = os.path.join(os.environ.get('BASE_CODE_PATH'), "checkpoint/dataset/" + os.environ.get('SAVE_DATASET_NAME') + time_info)
-
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         print("device: ", self.device)
 
-        model_path = os.path.join(os.path.join(os.environ.get('BASE_CODE_PATH'), "checkpoint/models/" + model_folder), model_name)
+        model_path = os.path.join(IMITATION_CHECKPOINTS_DIR, model_folder + "/" + model_name)
+
         self.agent = ImitationNetwork(device=self.device)
         self.agent.to(self.device)
+
         self.agent.load_state_dict(torch.load(model_path))
+
         for param in self.agent.parameters():
             param.requires_grad = False
         self.agent.eval()
 
         if ACTIVATE_SWITCH:
-            # model selection switcher network 6 modes
-            policy_model_path = os.path.join(os.path.join(os.environ.get('BASE_CODE_PATH'), "checkpoint/models/" + policy_model_folder), switch_model_name)
+
+            policy_model_path = os.path.join(CLASSIFIER_CHECKPOINTS_DIR, policy_model_folder + "/" + switch_model_name)
+            
             self.policy_classifier = PolicyClassifierNetwork(device=self.device)
             self.policy_classifier.to(self.device)
+
             self.policy_classifier.load_state_dict(torch.load(policy_model_path))
+
             for param in self.policy_classifier.parameters():
                 param.requires_grad = False
             self.policy_classifier.eval()
 
             # load pretrained ResNet and freeze weights
-            resnet_model_path = os.path.join(os.path.join(os.environ.get('BASE_CODE_PATH'), "checkpoint/models/"), "resnet50.zip")
+            resnet_model_path = os.path.join(os.path.join(base_code_path, "checkpoint/models/"), "resnet50.zip")
+            
             self.resnet50 = models.resnet50(pretrained=False)
             self.resnet50.to(self.device)
+
             self.resnet50.load_state_dict(torch.load(resnet_model_path))
+
             for param in self.resnet50.parameters():
                 param.requires_grad = False
             self.resnet50.eval()
 
-            rl_model_path = os.path.join(os.path.join(os.environ.get('BASE_CODE_PATH'), "checkpoint/models/" + rl_model_folder), "dqn" + "-ep_" + str(rl_model_eps_num))
-            self.rl_agent = DQNNetwork(state_size=1000, n_actions=4, device=self.device)
+            rl_model_path = os.path.join(RL_CHECKPOINTS_DIR, rl_model_folder + "/" + rl_model_eps_num)
+            parameters_path = RL_CHECKPOINTS_DIR + rl_model_folder + '/ray_results/params.json'
+
+            with open(parameters_path, 'r') as f:
+                config_data = json.load(f)
+            model_configs = config_data['model']
+
+            self.rl_agent = DQNNetwork(obs_space=Box(low=-np.inf, high=np.inf, shape=(1, 1000), dtype=np.float32),
+                                       action_space=Discrete(4),
+                                       num_outputs=4,
+                                       model_config=model_configs,
+                                       name='target_q_func')
             self.rl_agent.to(self.device)
-            self.rl_agent.load_state_dict(torch.load(rl_model_path))
+
+            self.rl_agent.fc_layers.load_state_dict(torch.load(rl_model_path))
+
             for param in self.rl_agent.parameters():
                 param.requires_grad = False
             self.rl_agent.eval()
@@ -167,8 +181,6 @@ class ImitationAgent(autonomous_agent.AutonomousAgent):
         self._route_planner.set_route(self._plan_gps_HACK, True)
         self._command_planner.set_route(self._global_plan, True)
 
-        if DAGGER:
-            self.init_dataset(output_dir=self.dataset_save_path)
         self.init_auto_pilot()
         self.init_privileged_agent()
 
@@ -224,7 +236,7 @@ class ImitationAgent(autonomous_agent.AutonomousAgent):
         self.collision_sensor = self.world.spawn_actor(bp_collision, carla.Transform(), attach_to=self.hero_vehicle)
 
         # create sensor event callbacks
-        self.collision_sensor.listen(lambda event: ImitationAgent._on_collision(weakref.ref(self), event))
+        self.collision_sensor.listen(lambda event: EvaluateDefix._on_collision(weakref.ref(self), event))
 
     def sensors(self):
         return [
@@ -341,7 +353,7 @@ class ImitationAgent(autonomous_agent.AutonomousAgent):
             with torch.no_grad():
                 self.policy_label = self.policy_classifier.inference(front_images=front_60_cv_image, speed_sequence=np.array(self.speed_sequence))
 
-            # TODO: train different DQN agents
+            # TODO: training different DQN agents
             # 0 class corresponds to running an imitation learning model
             if self.policy_label == 3 and self.check_count > 3:
                 self.switch2rl = True
@@ -349,6 +361,8 @@ class ImitationAgent(autonomous_agent.AutonomousAgent):
             else:
                 self.check_count += 1
 
+        # TODO: check resnet input formats
+        # TODO: rl input vector should be a dictionary
         if self.switch2rl:
             dnn_input_image = self.rl_agent.image_to_dnn_input(image=front_cv_image)
 
