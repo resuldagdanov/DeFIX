@@ -16,7 +16,7 @@ Detecting and Fixing Failure Scenarios with Reinforcement Learning in Imitation 
 </div>
 
 ## Provision Steps
-* move 'resnet50.zip' file to directory: <DeFIX_PATH/checkpoint/models/>
+* move 'resnet50' file to directory: <DeFIX_PATH/checkpoint/models/>
 * specify which RL agents to evaluate in <DeFIX_PATH/defix/evaluate.py> script
 * imitation learning models should be inside "DeFIX_PATH/checkpoint/models/imitation/" folder
 * all reinforcement learning models should be inside "DeFIX_PATH/checkpoint/models/reinforcement/" folder
