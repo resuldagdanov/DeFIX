@@ -16,6 +16,7 @@ either via a timeout, or if the ego vehicle drives some distance.
 """
 
 import py_trees
+import numpy as np
 
 import carla
 
@@ -48,7 +49,7 @@ class OtherLeadingVehicle(BasicScenario):
         print("other leading vehicle - sc5")
         self._world = world
         self._map = CarlaDataProvider.get_map()
-        self._first_vehicle_location = 35 # NOTE: by changing here stuck vehicle location will change
+        self._first_vehicle_location = np.random.randint(low=7, high=15) # NOTE: by changing here stuck vehicle location will change
         self._second_vehicle_location = self._first_vehicle_location + 1
         self._ego_vehicle_drive_distance = self._first_vehicle_location * 4
         self._first_vehicle_speed = 55
