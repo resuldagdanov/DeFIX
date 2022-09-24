@@ -1,0 +1,117 @@
+# To see the complete list of configurable parameters see:
+# https://github.com/ray-project/ray/blob/master/rllib/agents/trainer.py
+
+# === GENERAL ===
+framework: "torch"
+num_workers: 1
+num_gpus: 0
+object_store_memory: 1*10**7 # 1GB
+num_gpus_per_worker: 1
+num_cpus_per_worker: 6
+rollout_fragment_length: 4
+train_batch_size: 32
+learning_starts: 1000
+buffer_size: 200_000
+horizon: 350
+lr: 0.0005
+grad_clip: 1.0
+
+# "batch_mode": "complete_episodes"
+
+# === RAINBOW ===
+num_atoms: 51 # more than 1
+v_min: -1000.0 # NOTE: set v_min and v_max according to your expected range of returns
+v_max: 55.0
+noisy: True
+dueling: True
+double_q: True
+n_step: 5 # between 1 and 10
+prioritized_replay: True
+
+# === EXPLORATION ===
+explore: True
+exploration_config:
+  type: "EpsilonGreedy"
+  initial_epsilon: 1.0
+  final_epsilon: 0.01
+  epsilon_timesteps: 500_000
+
+# === CUSTOM MODEL NETWORK ===
+model:
+  custom_model: "custom_dqn_network"
+  custom_model_config: {}
+  fcnet_hiddens: [64, 64, 4]
+  fcnet_activation:
+  conv_activation:
+  dim: 1000
+
+# === EVALUATION ===
+evaluation_interval: 0
+evaluation_num_episodes: 0
+evaluation_num_workers: 0
+evaluation_config:
+  env_config:
+  explore: False
+
+# === ENVIRONMENT ===
+env_config:
+  carla:
+    host: "localhost"
+    timeout: 30.0
+    timestep: 0.05
+    retries_on_error: 25
+    resolution_x: 600
+    resolution_y: 400
+    quality_level: "Epic"
+    enable_map_assets: True
+    enable_rendering: True
+    show_display: True
+    debug_mode: 0
+  experiment:
+    hero:
+      routes: "routes/failed_routes/town05_short/traffic_light_3.xml"
+      scenarios: "scenarios/all_towns_traffic_scenarios_WOR.json"
+      repetitions: 1
+      debug_mode: 0
+      ego_vehicle_type: "vehicle.lincoln.mkz2017"
+      sensors:
+        birdview:
+          type: "sensor.birdview"
+          size: 300
+          radius: 15
+        front_camera:
+          type: "sensor.camera.rgb"
+          image_size_x: 400 # width
+          image_size_y: 300 # height
+          fov: 100 # degrees
+          lens_circle_multiplier: 3.0
+          lens_circle_falloff: 3.0
+          chromatic_aberration_intensity: 0.5
+          chromatic_aberration_offset: 0
+        gps:
+          type: "sensor.other.gnss"
+          sensor_tick: 0.01
+          noise_alt_stddev: 0.000005
+          noise_lat_stddev: 0.000005
+          noise_lon_stddev: 0.000005
+          noise_alt_bias: 0.0
+          noise_lat_bias : 0.0
+          noise_lon_bias: 0.0
+        imu:
+          type: "sensor.other.imu"
+          sensor_tick: 0.05
+          noise_accel_stddev_x: 0.001
+          noise_accel_stddev_y: 0.001
+          noise_accel_stddev_z: 0.015
+          noise_gyro_stddev_x: 0.001
+          noise_gyro_stddev_y: 0.001
+          noise_gyro_stddev_z: 0.001
+        collision:
+          type: "sensor.other.collision"
+    background_activity:
+      tm_hybrid_mode: True
+    town: "Town05"
+    others:
+      framestack: 4
+      max_time_idle: 500
+      max_time_episode: 100
