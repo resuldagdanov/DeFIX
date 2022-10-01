@@ -1,7 +1,7 @@
 [submodule "carla"]
 	path = carla
-	url = https://github.com/carla-simulator/carla
-	branch = master
+	url = https://github.com/resuldagdanov/carla
+	branch = defix-master
 [submodule "imitation-learning"]
 	path = imitation-learning
 	url = https://github.com/resuldagdanov/scenario-based-rl
