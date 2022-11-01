@@ -6,6 +6,16 @@ DeFIX: Detecting and Fixing Failure Scenarios with Reinforcement Learning in Imi
 --- 
 ## Citation
 ```bibtex
+@inproceedings{defix,
+	author = {Dagdanov, Resul and Eksen, Feyza and Durmus, Halil and Yurdakul, Ferhat and Ure, Nazim Kemal},
+	title = {DeFIX: Detecting and Fixing Failure Scenarios with Reinforcement Learning in Imitation Learning Based Autonomous Driving},
+	booktitle = {2022 IEEE International Intelligent Transportation Systems Conference (ITSC)},
+	year = {2022},
+	publisher = {IEEE}
+}
+```
+
+```bibtex
 @misc{https://doi.org/10.48550/arxiv.2210.16567,
   doi = {10.48550/ARXIV.2210.16567},
   url = {https://arxiv.org/abs/2210.16567},
