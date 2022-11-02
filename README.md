@@ -1,29 +1,20 @@
 # DeFIX
 DeFIX: Detecting and Fixing Failure Scenarios with Reinforcement Learning in Imitation Learning Based Autonomous Driving
 
-## [Paper](https://arxiv.org/abs/2210.16567) | [Code](https://github.com/data-and-decision-lab/DeFIX) | [Slides](https://github.com/resuldagdanov/DeFIX/tree/ITSC-22/slides)
+## [Paper](https://ieeexplore.ieee.org/document/9922209) | [ArXiv](https://arxiv.org/abs/2210.16567) | [Code](https://github.com/data-and-decision-lab/DeFIX) | [Slides](https://github.com/resuldagdanov/DeFIX/tree/ITSC-22/slides)
 
 --- 
 ## Citation
 ```bibtex
-@inproceedings{defix,
+@INPROCEEDINGS{dagdanov2022defix,
 	author = {Dagdanov, Resul and Eksen, Feyza and Durmus, Halil and Yurdakul, Ferhat and Ure, Nazim Kemal},
+    booktitle = {2022 IEEE 25th International Conference on Intelligent Transportation Systems (ITSC)},
 	title = {DeFIX: Detecting and Fixing Failure Scenarios with Reinforcement Learning in Imitation Learning Based Autonomous Driving},
-	booktitle = {2022 IEEE International Intelligent Transportation Systems Conference (ITSC)},
 	year = {2022},
-	publisher = {IEEE}
-}
-```
-
-```bibtex
-@misc{https://doi.org/10.48550/arxiv.2210.16567,
-  doi = {10.48550/ARXIV.2210.16567},
-  url = {https://arxiv.org/abs/2210.16567},
-  author = {Dagdanov, Resul and Eksen, Feyza and Durmus, Halil and Yurdakul, Ferhat and Ure, Nazim Kemal},
-  title = {DeFIX: Detecting and Fixing Failure Scenarios with Reinforcement Learning in Imitation Learning Based Autonomous Driving},
-  publisher = {arXiv},
-  year = {2022},
-  copyright = {Creative Commons Attribution 4.0 International}
+    volume={},
+    number={},
+    pages={4215-4220},
+    doi={10.1109/ITSC55140.2022.9922209}
 }
 ```
 
